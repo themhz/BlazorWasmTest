@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #canvas { background: #000; }
+        .dot { background: #f00; width: 10px; height: 10px; position: absolute; }
+    </style>
+</head>
+<body>
+    <div id="canvas" style="position:relative;width:800px;height:600px;">
+        <div id="dot" class="dot"></div>
+    </div>
+    <script src="animation.js"></script>
+    <script>
+        const dot = document.getElementById('dot');
+        const canvas = document.getElementById('canvas');
+        Module.onRuntimeInitialized = async _ => {
+            const updatePosition = Module.cwrap('update_position', null, ['number', 'number']);
+            const getPosition = Module.cwrap('get_position', 'number', []);
+            canvas.onmousemove = function(event) {
+                updatePosition(event.clientX, event.clientY);
+            };
+            function animate() {
+                const point = getPosition();
+                dot.style.left = Module.HEAP32[point / 4] + 'px';
+                dot.style.top = Module.HEAP32[point / 4 + 1] + 'px';
+                requestAnimationFrame(animate);
+            }
+            animate();
+        };
+    </script>
+</body>
+</html>
